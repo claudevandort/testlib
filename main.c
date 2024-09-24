@@ -1,4 +1,4 @@
-#include "unit_test.h"
+#include "testlib.h"
 
 static void test_addition(void) {
     int result = 2 + 2;
@@ -12,8 +12,9 @@ static void test_subtraction(void) {
 
 int main() {
     test_verbosity = 0;
-    REGISTER_TEST(test_addition);
-    REGISTER_TEST(test_subtraction);
-    RUN_TESTS();
+    register_test("test_addition", test_addition);
+    register_test("test_subtraction", test_subtraction);
+    run_tests();
+
     return 0;
 }

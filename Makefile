@@ -8,8 +8,8 @@ all: run
 run: test
 	./test
 
-test: sample.c unit_test.h
-	$(CC) $(CFLAGS) -o test sample.c
+test: main.c testlib.h testlib.c
+	$(CC) $(CFLAGS) -o test main.c testlib.c
 
 clean:
 	rm -f test
