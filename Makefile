@@ -5,11 +5,11 @@ CFLAGS = -Wall -Wextra -Werror -std=c99
 
 all: run
 
-run: test
-	./test
+run: build
+	./build/example
 
-test: main.c testlib.h testlib.c
-	$(CC) $(CFLAGS) -o test main.c testlib.c
+build: example.c testlib.h testlib.c
+	$(CC) $(CFLAGS) -o ./build/example example.c testlib.c
 
 clean:
-	rm -f test
+	rm -f build/example
