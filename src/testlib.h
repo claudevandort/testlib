@@ -14,7 +14,7 @@ extern int test_verbosity;
 
 typedef struct TestNode {
     const char* name;
-    void (*function)(void);
+    void (*function)(struct TestNode*);
     bool passed;
     char* failure_message;
     struct TestNode* next;
@@ -26,11 +26,18 @@ typedef struct {
     int failed;
 } TestStats;
 
+typedef struct TestSuite {
+    const char* name;
+    TestNode* tests;
+    TestStats stats;
+    struct TestSuite* next;
+} TestSuite;
+
 #define ASSERT_TRUE(condition) \
     do { \
-        current_test->passed = (condition); \
-        if (!current_test->passed) { \
-            asprintf(&current_test->failure_message, "%s:%d: Assertion '%s' failed.", \
+        test->passed = (condition); \
+        if (!test->passed) { \
+            asprintf(&test->failure_message, "%s:%d: Assertion '%s' failed.", \
                     __FILE__, __LINE__, #condition); \
             return; \
         } \
@@ -38,9 +45,9 @@ typedef struct {
 
 #define ASSERT_FALSE(condition) \
     do { \
-        current_test->passed = !(condition); \
-        if (!current_test->passed) { \
-            asprintf(&current_test->failure_message, "%s:%d: Assertion '!(%s)' failed.", \
+        test->passed = !(condition); \
+        if (!test->passed) { \
+            asprintf(&test->failure_message, "%s:%d: Assertion '!(%s)' failed.", \
                     __FILE__, __LINE__, #condition); \
             return; \
         } \
@@ -48,9 +55,9 @@ typedef struct {
 
 #define ASSERT_EQUAL(expected, actual) \
     do { \
-        current_test->passed = ((expected) == (actual)); \
-        if (!current_test->passed) { \
-            asprintf(&current_test->failure_message, "%s:%d: Expected %d, got %d.", \
+        test->passed = ((expected) == (actual)); \
+        if (!test->passed) { \
+            asprintf(&test->failure_message, "%s:%d: Expected %d, got %d.", \
                     __FILE__, __LINE__, (expected), (actual)); \
             return; \
         } \
@@ -58,9 +65,9 @@ typedef struct {
 
 #define ASSERT_NOT_EQUAL(expected, actual) \
     do { \
-        current_test->passed = ((expected) != (actual)); \
-        if (!current_test->passed) { \
-            asprintf(&current_test->failure_message, "%s:%d: Expected not %d, but got %d.", \
+        test->passed = ((expected) != (actual)); \
+        if (!test->passed) { \
+            asprintf(&test->failure_message, "%s:%d: Expected not %d, but got %d.", \
                     __FILE__, __LINE__, (expected), (actual)); \
             return; \
         } \
@@ -68,9 +75,9 @@ typedef struct {
 
 #define ASSERT_NULL(pointer) \
     do { \
-        current_test->passed = ((pointer) == NULL); \
-        if (!current_test->passed) { \
-            asprintf(&current_test->failure_message, "%s:%d: Expected NULL, but got %p.", \
+        test->passed = ((pointer) == NULL); \
+        if (!test->passed) { \
+            asprintf(&test->failure_message, "%s:%d: Expected NULL, but got %p.", \
                     __FILE__, __LINE__, (void *)(pointer)); \
             return; \
         } \
@@ -78,9 +85,9 @@ typedef struct {
 
 #define ASSERT_NOT_NULL(pointer) \
     do { \
-        current_test->passed = ((pointer) != NULL); \
-        if (!current_test->passed) { \
-            asprintf(&current_test->failure_message, "%s:%d: Expected not NULL, but got NULL.", \
+        test->passed = ((pointer) != NULL); \
+        if (!test->passed) { \
+            asprintf(&test->failure_message, "%s:%d: Expected not NULL, but got NULL.", \
                     __FILE__, __LINE__); \
             return; \
         } \
@@ -88,9 +95,9 @@ typedef struct {
 
 #define ASSERT_STRING_EQUAL(expected, actual) \
     do { \
-        current_test->passed = (strcmp((expected), (actual)) == 0); \
-        if (!current_test->passed) { \
-            asprintf(&current_test->failure_message, "%s:%d: Expected '%s', but got '%s'.", \
+        test->passed = (strcmp((expected), (actual)) == 0); \
+        if (!test->passed) { \
+            asprintf(&test->failure_message, "%s:%d: Expected '%s', but got '%s'.", \
                     __FILE__, __LINE__, (expected), (actual)); \
             return; \
         } \
@@ -98,18 +105,17 @@ typedef struct {
 
 #define ASSERT_STRING_NOT_EQUAL(expected, actual) \
     do { \
-        current_test->passed = (strcmp((expected), (actual)) != 0); \
-        if (!current_test->passed) { \
-            asprintf(&current_test->failure_message, "%s:%d: Expected not '%s', but got '%s'.", \
+        test->passed = (strcmp((expected), (actual)) != 0); \
+        if (!test->passed) { \
+            asprintf(&test->failure_message, "%s:%d: Expected not '%s', but got '%s'.", \
                     __FILE__, __LINE__, (expected), (actual)); \
             return; \
         } \
     } while (0)
 
-void register_test(const char *test_name, void (*test_function)(void));
-TestStats run_tests(void);
-void print_test_report(const TestStats* stats);
-
-extern TestNode* current_test;
+TestSuite* create_test_suite(const char* suite_name);
+void register_test(TestSuite* suite, const char* test_name, void (*test_function)(TestNode*));
+void run_tests(void);
+TestStats* make_test_report(void);
 
 #endif // TESTLIB_H

@@ -1,7 +1,7 @@
 .PHONY: all run clean
 
 CC = clang
-CFLAGS = -Wall -Wextra -Werror -std=c99
+CFLAGS = -Wall -Wextra -Werror -std=c99 -g
 OUTPUT = build/example
 
 all: run
@@ -9,7 +9,7 @@ all: run
 run: build
 	./$(OUTPUT)
 
-build: src/*.h src/*.c
+build: Makefile src/*.h src/*.c
 	$(CC) $(CFLAGS) -o $(OUTPUT) src/*.c
 
 clean:
