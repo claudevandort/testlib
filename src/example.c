@@ -42,7 +42,7 @@ int main() {
     register_test("test_not_null", test_not_null);
     register_test("test_string_equal", test_string_equal);
     register_test("test_string_not_equal", test_string_not_equal);
-    run_tests();
+    TestStats stats = run_tests();
 
-    return 0;
+    return stats.failed;
 }
