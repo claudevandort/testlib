@@ -1,8 +1,6 @@
 #include "testlib.h"
 
 static TestSuite* suite_list_head = NULL;
-TestNode* current_test = NULL;
-
 int test_verbosity = 1;
 
 TestSuite* create_test_suite(const char* suite_name) {
